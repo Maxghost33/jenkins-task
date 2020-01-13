@@ -1,0 +1,29 @@
+version: '3'
+services:
+  
+  jenkins:
+    image: ghostgoose33/jeninks-master:v1
+    container_name: jenkins
+    ports:
+      - '8080:8080'
+      - '50000:50000'
+    networks: 
+      - jenkins-net
+
+  jenkins-slave:
+    image: ghostgoose33/jenkins-slave:v2
+    container_name: jenkins-slave
+    restart: always
+    links:
+      - jenkins
+    environment:
+      - 'JENKINS_URL=http://jenkins:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - jenkins
+    networks: 
+      - jenkins-net
+networks:
+  jenkins-net:
+    external: true
