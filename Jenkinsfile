@@ -40,16 +40,15 @@ node('docker') {
     stage 'Check NGINX'
         nginx_host = (sh (script: "docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' nginx-srv", returnStdout:true).trim())
         check_new = (sh (script: "python health-check.py ${nginx_host}", returnStdout:true).trim())
-        echo "CHECK_NEW = ${check_new}"
         if ("${check_new}" != "200"){
             if ("${tagold}" == ""){
                 currentBuild.result = 'FAILED'
-				notifySlack(currentBuild.result)
-				throw new Exception("Pipeline failed")
+	        notifySlack(currentBuild.result)
+	        throw new Exception("Pipeline failed")
             }
             else{
                 sh "docker push ghostgoose33/nginx-custom.${imageTag}"
-				currentBuild.result = 'SUCCESS'
-				notifySlack(currentBuild.result)
+		currentBuild.result = 'SUCCESS'
+		notifySlack(currentBuild.result)
             }
         }
